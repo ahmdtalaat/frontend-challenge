@@ -1,31 +1,52 @@
 <template>
-  <div>
-    <v-app-bar color="#009688" dark>
-      <nuxt-link to="/">
-        <v-toolbar-title>PushBots</v-toolbar-title>
-      </nuxt-link>
-      <v-spacer class="hidden-xs-only"></v-spacer>
-      <div v-if="userData" class="user">
-        <div>
-          <p>{{ userData.name }}</p>
-          <p><v-icon>mdi-star</v-icon>{{ userData.plan }}</p>
-        </div>
-        <div>
-          <img alt="avatar" :src="userData.avatar" max-width="34" height="34" />
-        </div>
+  <v-app-bar color="#009688" dark>
+    <nuxt-link to="/">
+      <v-toolbar-title>PushBots</v-toolbar-title>
+    </nuxt-link>
+    <v-spacer class="hidden-xs-only"></v-spacer>
+    <div v-if="userData" class="user">
+      <div>
+        <p>{{ userData.name }}</p>
+        <p><v-icon>mdi-star</v-icon>{{ userData.plan }}</p>
       </div>
-      <nuxt-link v-if="!userData" to="/login">
-        <v-btn rounded color="primary" dark>Login</v-btn>
-      </nuxt-link>
-    </v-app-bar>
-  </div>
+      <div>
+        <img alt="avatar" :src="userData.avatar" max-width="34" height="34" />
+      </div>
+    </div>
+    <nuxt-link v-if="!userData" to="/login">
+      <v-btn rounded color="primary" dark>Login</v-btn>
+    </nuxt-link>
+  </v-app-bar>
 </template>
 
 <script>
 export default {
   computed: {
     userData() {
+      // watch for user
       return this.$store.state.userData
+    }
+  },
+  created() {
+    this.getUserData()
+  },
+  methods: {
+    async getUserData() {
+      // if there is a token in local Storage
+      // get data with token
+      if (process.browser) {
+        const token = localStorage.getItem('jwtToken')
+        if (token) {
+          const config = {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+          const res = await this.$axios.$get(
+            'https://pushbots-fend-challenge.herokuapp.com/api/me',
+            config
+          )
+          this.$store.commit('setUserData', res)
+        }
+      }
     }
   }
 }

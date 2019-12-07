@@ -9,6 +9,7 @@ import LoginForm from '~/components/LoginForm'
 export default {
   head() {
     return {
+      // set meta tags for login page
       title: 'Login',
       meta: [
         {

@@ -19,6 +19,5 @@ export default {
 <style scoped>
 .home {
   height: 100vh;
-  /* background: linear-gradient(#e66465, #495249); */
 }
 </style>

@@ -58,6 +58,7 @@ export default {
     rules: {
       required: (value) => !!value || 'Required.',
       email: (value) => {
+        // regex for email validation
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         return pattern.test(value) || 'Invalid e-mail.'
       }
@@ -74,6 +75,7 @@ export default {
           }
         )
         this.$store.commit('setUserData', res.user)
+        localStorage.setItem('jwtToken', res.token)
         this.$router.push('/')
       } catch (err) {
         this.errors = err.response.data.msg
