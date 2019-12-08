@@ -5,12 +5,24 @@
     </nuxt-link>
     <v-spacer class="hidden-xs-only"></v-spacer>
     <div v-if="userData" class="user">
-      <div>
-        <p>{{ userData.name }}</p>
-        <p><v-icon>mdi-star</v-icon>{{ userData.plan }}</p>
+      <div class="devices">
+        <p><i class="mdi mdi-account-multiple" />{{ userData.totalDevices }}</p>
+      </div>
+      <div class="apps">
+        <p><i class="mdi mdi-apps" />{{ userData.totalApps }}</p>
+      </div>
+      <div class="user-data">
+        <p class="name">{{ userData.name }}</p>
+        <p class="plan"><i class="mdi mdi-star" />{{ userData.plan }}</p>
       </div>
       <div>
-        <img alt="avatar" :src="userData.avatar" max-width="34" height="34" />
+        <img
+          class="avatar"
+          alt="avatar"
+          :src="userData.avatar"
+          max-width="34"
+          height="34"
+        />
       </div>
     </div>
     <nuxt-link v-if="!userData" to="/login">
@@ -20,6 +32,7 @@
 </template>
 
 <script>
+const jwtDecode = require('jwt-decode')
 export default {
   computed: {
     userData() {
@@ -27,6 +40,7 @@ export default {
       return this.$store.state.userData
     }
   },
+
   created() {
     this.getUserData()
   },
@@ -35,16 +49,23 @@ export default {
       // if there is a token in local Storage
       // get data with token
       if (process.browser) {
-        const token = localStorage.getItem('jwtToken')
-        if (token) {
-          const config = {
-            headers: { Authorization: `Bearer ${token}` }
+        if (localStorage.getItem('jwtToken')) {
+          const token = localStorage.getItem('jwtToken')
+          const decodedToken = jwtDecode(token)
+          if (decodedToken.exp * 1000 < Date.now()) {
+            localStorage.removeItem('jwtToken')
+          } else {
+            try {
+              const config = {
+                headers: { Authorization: `Bearer ${token}` }
+              }
+              const res = await this.$axios.$get(
+                'https://pushbots-fend-challenge.herokuapp.com/api/me',
+                config
+              )
+              this.$store.commit('setUserData', res)
+            } catch (err) {}
           }
-          const res = await this.$axios.$get(
-            'https://pushbots-fend-challenge.herokuapp.com/api/me',
-            config
-          )
-          this.$store.commit('setUserData', res)
         }
       }
     }
@@ -53,15 +74,18 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.v-app-bar {
+  margin-bottom: 5rem;
+}
 .user {
   display: flex;
   flex-direction: row;
-  div:first-child {
+  font-family: $main-font-family;
+  .user-data {
     text-align: center;
-    font-family: $main-font-family;
     font-weight: 500;
     margin: 0 8px;
-    :last-child {
+    .plan {
       background-color: #000;
       border-radius: 20px;
       font-size: 0.8rem;
@@ -69,8 +93,13 @@ export default {
       height: 17px;
     }
   }
-  div:last-child {
+  .devices,
+  .apps {
+    margin: auto 8px;
+  }
+  .avatar {
     margin-left: 8px;
+    border-radius: 150px;
   }
 }
 a {

@@ -1,11 +1,11 @@
 <template>
-  <div class="container">
-    <h1>Welcome to PushBots</h1>
-    <img alt="pushbots logo" src="~assets/icons/logo.jpg" />
+  <div>
+    <DashBoard />
   </div>
 </template>
 
 <script>
+import DashBoard from '~/components/DashBoard'
 export default {
   head() {
     // set meta tags for home page
@@ -20,21 +20,8 @@ export default {
       ]
     }
   },
-  components: {}
+  components: {
+    DashBoard
+  }
 }
 </script>
-
-<style lang="scss" scoped>
-@import '~/assets/style/style.scss';
-.container {
-  @include flex;
-  flex-direction: column;
-  height: 90vh;
-  font-family: $main-font-family;
-}
-img {
-  width: 200px;
-  height: 200px;
-  margin: 10px;
-}
-</style>
