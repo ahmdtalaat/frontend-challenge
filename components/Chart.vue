@@ -6,7 +6,6 @@
     :padding="padding"
     :smooth="radius || false"
     :value="value"
-    auto-draw
   ></v-sparkline>
 </template>
 <script>
@@ -34,12 +33,11 @@ export default {
     gradients,
     padding: 8,
     radius: 10,
-    width: 2
+    width: 2,
+    value: []
   }),
-  computed: {
-    value() {
-      return this.values.map((obj) => obj.value)
-    }
+  mounted() {
+    this.value = this.values.map((obj) => obj.value)
   }
 }
 </script>

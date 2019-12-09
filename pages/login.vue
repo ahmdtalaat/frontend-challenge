@@ -7,6 +7,7 @@
 <script>
 import LoginForm from '~/components/LoginForm'
 export default {
+  middleware: 'notAuth',
   head() {
     return {
       // set meta tags for login page

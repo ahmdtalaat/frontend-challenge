@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <template v-if="apps">
+    <template v-if="apps.length > 0">
       <v-row>
         <nuxt-link to="#"><i class="mdi mdi-check" />Complete</nuxt-link>
         <nuxt-link to="#"><i class="mdi mdi-settings" />In Setup</nuxt-link>
@@ -34,6 +34,8 @@
                   <v-col><i class="mdi mdi-send"/></v-col>
                   <v-col><i class="mdi mdi-account-multiple"/></v-col>
                   <v-col><i class="mdi mdi-settings"/></v-col>
+                  <v-col><i class="mdi mdi-twitter"/></v-col>
+                  <v-col><i class="mdi mdi-chart-histogram"/></v-col>
                 </v-row>
               </v-card-actions>
             </v-card>
@@ -52,40 +54,14 @@
 
 <script>
 import Chart from '~/components/Chart'
-const jwtDecode = require('jwt-decode')
+
 export default {
   components: {
     Chart
   },
-  data() {
-    return {
-      apps: null
-    }
-  },
-
-  mounted() {
-    this.getApps()
-  },
-  methods: {
-    async getApps() {
-      if (localStorage.getItem('jwtToken')) {
-        const token = localStorage.getItem('jwtToken')
-        const decodedToken = jwtDecode(token)
-        if (decodedToken.exp * 1000 < Date.now()) {
-          localStorage.removeItem('jwtToken')
-        } else {
-          try {
-            const config = {
-              headers: { Authorization: `Bearer ${token}` }
-            }
-            const res = await this.$axios.$get(
-              'https://pushbots-fend-challenge.herokuapp.com/api/apps?take=5&skip=5&sortBy=title&direction=desc',
-              config
-            )
-            this.apps = res.data
-          } catch (err) {}
-        }
-      }
+  computed: {
+    apps() {
+      return this.$store.state.apps
     }
   }
 }
@@ -116,9 +92,7 @@ a {
 .active {
   color: $main-color;
 }
-.headline {
-  overflow: visible;
-}
+
 .v-card__actions {
   text-align: center;
   padding: 6px;

@@ -1,5 +1,7 @@
 <template>
   <v-app-bar color="#009688" dark>
+    <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
     <nuxt-link to="/">
       <v-toolbar-title>PushBots</v-toolbar-title>
     </nuxt-link>
@@ -15,15 +17,22 @@
         <p class="name">{{ userData.name }}</p>
         <p class="plan"><i class="mdi mdi-star" />{{ userData.plan }}</p>
       </div>
-      <div>
-        <img
-          class="avatar"
-          alt="avatar"
-          :src="userData.avatar"
-          max-width="34"
-          height="34"
-        />
+      <div class="avatar">
+        <img alt="avatar" :src="userData.avatar" max-width="34" height="34" />
       </div>
+      <v-menu left bottom offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item @click="logout">
+            <v-list-item-title>Logout</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </div>
     <nuxt-link v-if="!userData" to="/login">
       <v-btn rounded color="primary" dark>Login</v-btn>
@@ -32,7 +41,8 @@
 </template>
 
 <script>
-const jwtDecode = require('jwt-decode')
+const Cookie = process.client ? require('js-cookie') : undefined
+
 export default {
   computed: {
     userData() {
@@ -40,34 +50,11 @@ export default {
       return this.$store.state.userData
     }
   },
-
-  created() {
-    this.getUserData()
-  },
   methods: {
-    async getUserData() {
-      // if there is a token in local Storage
-      // get data with token
-      if (process.browser) {
-        if (localStorage.getItem('jwtToken')) {
-          const token = localStorage.getItem('jwtToken')
-          const decodedToken = jwtDecode(token)
-          if (decodedToken.exp * 1000 < Date.now()) {
-            localStorage.removeItem('jwtToken')
-          } else {
-            try {
-              const config = {
-                headers: { Authorization: `Bearer ${token}` }
-              }
-              const res = await this.$axios.$get(
-                'https://pushbots-fend-challenge.herokuapp.com/api/me',
-                config
-              )
-              this.$store.commit('setUserData', res)
-            } catch (err) {}
-          }
-        }
-      }
+    logout() {
+      Cookie.remove('jwtToken')
+      this.$store.commit('setUserData', null)
+      this.$store.commit('setApps', [])
     }
   }
 }
@@ -84,7 +71,7 @@ export default {
   .user-data {
     text-align: center;
     font-weight: 500;
-    margin: 0 8px;
+    margin: auto 8px;
     .plan {
       background-color: #000;
       border-radius: 20px;
@@ -98,8 +85,10 @@ export default {
     margin: auto 8px;
   }
   .avatar {
-    margin-left: 8px;
-    border-radius: 150px;
+    margin: auto 8px;
+    img {
+      border-radius: 150px;
+    }
   }
 }
 a {

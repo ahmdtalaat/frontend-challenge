@@ -49,6 +49,8 @@
   </v-card>
 </template>
 <script>
+const Cookie = process.client ? require('js-cookie') : undefined
+
 export default {
   data: () => ({
     email: '',
@@ -74,8 +76,16 @@ export default {
             password: this.password
           }
         )
+        const config = {
+          headers: { Authorization: `Bearer ${res.token}` }
+        }
+        const apps = await this.$axios.$get(
+          'https://pushbots-fend-challenge.herokuapp.com/api/apps?take=5&skip=5&sortBy=title&direction=desc',
+          config
+        )
         this.$store.commit('setUserData', res.user)
-        localStorage.setItem('jwtToken', res.token)
+        this.$store.commit('setApps', apps.data)
+        Cookie.set('jwtToken', res.token)
         this.$router.push('/')
       } catch (err) {
         this.errors = err.response.data.msg
