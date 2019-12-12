@@ -1,7 +1,10 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
-  mode: 'spa',
+  mode: 'universal',
+  generate: {
+    routes: ['/login']
+  },
   /*
    ** Headers of the page
    */

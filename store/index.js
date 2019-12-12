@@ -53,7 +53,7 @@ export const actions = {
   },
   async nuxtServerInit({ commit }, { req }) {
     // Fetch the data on SSR if there is a token
-    if (req.headers.cookie) {
+    if (req && req.headers && req.headers.cookie) {
       // check if there is a cookie on SSR
       const { jwtToken } = cookieparser.parse(req.headers.cookie)
       const decodedToken = jwtDecode(jwtToken)
