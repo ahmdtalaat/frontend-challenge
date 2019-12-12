@@ -4,7 +4,8 @@ const jwtDecode = require('jwt-decode')
 
 export const state = () => ({
   apps: [],
-  userData: null
+  userData: null,
+  error: '' // login error
 })
 export const mutations = {
   setApps(state, apps) {
@@ -12,12 +13,48 @@ export const mutations = {
   },
   setUserData(state, data) {
     state.userData = data
+  },
+  setError(state, err) {
+    state.error = err
   }
 }
 
 export const actions = {
+  // submitting the form
+  async submitForm({ commit }, { email, password }) {
+    try {
+      const res = await this.$axios.$post(
+        // login with creds
+        'https://pushbots-fend-challenge.herokuapp.com/login',
+        {
+          email,
+          password
+        }
+      )
+      const config = {
+        headers: { Authorization: `Bearer ${res.token}` }
+      }
+      const apps = await this.$axios.$get(
+        // if user is logged in
+        // fetch the apps
+        'https://pushbots-fend-challenge.herokuapp.com/api/apps?take=5&skip=5&sortBy=title&direction=desc',
+        config
+      )
+
+      // store the result
+      commit('setUserData', res.user)
+      commit('setApps', apps.data)
+      commit('setError', '')
+      Cookie.set('jwtToken', res.token)
+      this.$router.push('/')
+    } catch (err) {
+      commit('setError', err.response.data.msg)
+    }
+  },
   async nuxtServerInit({ commit }, { req }) {
+    // Fetch the data on SSR if there is a token
     if (req.headers.cookie) {
+      // check if there is a cookie on SSR
       const { jwtToken } = cookieparser.parse(req.headers.cookie)
       const decodedToken = jwtDecode(jwtToken)
       if (decodedToken.exp * 1000 < Date.now()) {
@@ -37,7 +74,9 @@ export const actions = {
           )
           commit('setApps', apps.data)
           commit('setUserData', res)
-        } catch (err) {}
+        } catch (err) {
+          commit('setError', err.response.data.msg)
+        }
       }
     }
   }

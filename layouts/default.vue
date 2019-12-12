@@ -1,5 +1,5 @@
 <template>
-  <div class="home" data-app>
+  <div class="home" data-app role="main">
     <AppNavBar />
     <nuxt />
   </div>

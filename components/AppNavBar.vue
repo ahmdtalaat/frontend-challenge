@@ -1,6 +1,6 @@
 <template>
-  <v-app-bar color="#009688" dark>
-    <v-app-bar-nav-icon></v-app-bar-nav-icon>
+  <v-app-bar color="#009688" dark aria-labelledby="Appbar">
+    <v-app-bar-nav-icon aria-label="Menu"></v-app-bar-nav-icon>
 
     <nuxt-link to="/">
       <v-toolbar-title>PushBots</v-toolbar-title>

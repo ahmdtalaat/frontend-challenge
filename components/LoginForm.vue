@@ -4,18 +4,18 @@
       <v-toolbar-title>Log into your account</v-toolbar-title>
     </v-toolbar>
     <v-card-text>
-      <form>
+      <v-form ref="form" v-model="valid">
         <v-text-field
           v-model="email"
           prepend-icon="mdi-email"
           label="Email"
-          :rules="[rules.required, rules.email]"
+          :rules="emailRules"
         ></v-text-field>
         <v-text-field
           v-model="password"
           prepend-icon="mdi-lock"
           :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          :rules="[rules.required]"
+          :rules="[(v) => !!v || 'Password is required']"
           :type="show ? 'text' : 'password'"
           label="Password"
           @click:append="show = !show"
@@ -31,64 +31,64 @@
           >
         </v-col>
         <v-card-actions>
-          <v-btn block color="#009688" dark @click="submit">Login</v-btn>
+          <v-btn
+            block
+            color="#009688"
+            aria-label="Login Button"
+            dark
+            @click="submit"
+            >Login</v-btn
+          >
         </v-card-actions>
         <v-row no-gutters class="bt">
           <v-col cols="6">
-            <v-btn block class="bt-google" dark>Google</v-btn>
+            <v-btn block class="bt-google" aria-label="Sign-in with Google" dark
+              >Google</v-btn
+            >
           </v-col>
           <v-col cols="6">
-            <v-btn block class="bt-github" dark>Github</v-btn>
+            <v-btn block class="bt-github" aria-label="Sign-in with Github" dark
+              >Github</v-btn
+            >
           </v-col>
         </v-row>
-      </form>
-      <div v-if="errors">
-        <span class="error-msg">{{ errors }}</span>
+      </v-form>
+      <div v-if="error">
+        <span class="error-msg">{{ error }}</span>
       </div>
     </v-card-text>
   </v-card>
 </template>
 <script>
-const Cookie = process.client ? require('js-cookie') : undefined
-
 export default {
   data: () => ({
+    valid: false,
     email: '',
+    emailRules: [
+      (v) => !!v || 'E-mail is required',
+      (v) =>
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(.\w{2,3})+$/.test(v) ||
+        'E-mail must be valid'
+    ],
     password: '',
-    show: false,
-    errors: null,
-    rules: {
-      required: (value) => !!value || 'Required.',
-      email: (value) => {
-        // regex for email validation
-        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        return pattern.test(value) || 'Invalid e-mail.'
-      }
-    }
+    show: false
   }),
+  computed: {
+    error() {
+      return this.$store.state.error
+    }
+  },
+  destroyed() {
+    // clear errors when change routes
+    this.$store.commit('setError', '')
+  },
   methods: {
-    async submit() {
-      try {
-        const res = await this.$axios.$post(
-          'https://pushbots-fend-challenge.herokuapp.com/login',
-          {
-            email: this.email,
-            password: this.password
-          }
-        )
-        const config = {
-          headers: { Authorization: `Bearer ${res.token}` }
-        }
-        const apps = await this.$axios.$get(
-          'https://pushbots-fend-challenge.herokuapp.com/api/apps?take=5&skip=5&sortBy=title&direction=desc',
-          config
-        )
-        this.$store.commit('setUserData', res.user)
-        this.$store.commit('setApps', apps.data)
-        Cookie.set('jwtToken', res.token)
-        this.$router.push('/')
-      } catch (err) {
-        this.errors = err.response.data.msg
+    submit() {
+      if (this.valid) {
+        this.$store.dispatch('submitForm', {
+          email: this.email,
+          password: this.password
+        })
       }
     }
   }

@@ -44,10 +44,12 @@
       </v-row>
     </template>
     <template v-else>
-      <v-col cols="9">
-        <v-row><h2>Welcome to PushBots</h2></v-row>
-        <v-row><img src="~assets/icons/logo.jpg" alt="PushBots Logo"/></v-row>
-      </v-col>
+      <v-row>
+        <v-col cols="12"
+          ><v-toolbar-title><h3>Welcome to PushBots</h3></v-toolbar-title>
+          <img src="~assets/icons/logo.jpg" alt="PushBots Logo" />
+        </v-col>
+      </v-row>
     </template>
   </v-container>
 </template>
@@ -77,11 +79,14 @@ export default {
 }
 .row {
   justify-content: center;
+  .col {
+    text-align: center;
+  }
 }
 img {
   width: 200px;
   height: 200px;
-  margin: 10px;
+  margin: 10px auto;
 }
 a {
   text-decoration: none;
