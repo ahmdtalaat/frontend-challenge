@@ -11,8 +11,8 @@ export default {
   components: {
     AppNavBar
   },
-  data() {
-    return {}
+  mounted() {
+    this.$store.dispatch('init')
   }
 }
 </script>

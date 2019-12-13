@@ -1,4 +1,3 @@
-const cookieparser = process.server ? require('cookieparser') : undefined
 const Cookie = process.client ? require('js-cookie') : undefined
 const jwtDecode = require('jwt-decode')
 
@@ -51,11 +50,11 @@ export const actions = {
       commit('setError', err.response.data.msg)
     }
   },
-  async nuxtServerInit({ commit }, { req }) {
+  async init({ commit }) {
     // Fetch the data on SSR if there is a token
-    if (req && req.headers && req.headers.cookie) {
+    if (Cookie.get('jwtToken')) {
       // check if there is a cookie on SSR
-      const { jwtToken } = cookieparser.parse(req.headers.cookie)
+      const jwtToken = Cookie.get('jwtToken')
       const decodedToken = jwtDecode(jwtToken)
       if (decodedToken.exp * 1000 < Date.now()) {
         Cookie.remove('jwtToken')
